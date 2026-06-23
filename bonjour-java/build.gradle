@@ -1,0 +1,12 @@
+apply plugin: 'java-library'
+apply from: '../deploy.gradle'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    api project(":bonjour")
+    implementation "org.jmdns:jmdns:${JmdnsVersion}"
+}

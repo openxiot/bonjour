@@ -1,0 +1,56 @@
+name: Publish to Maven Central
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Gradle distribution
+        id: cache-gradle
+        uses: actions/cache@v4
+        with:
+          path: /tmp/gradle-7.6.6-bin.zip
+          key: gradle-7.6.6-bin
+
+      - name: Download Gradle distribution if not cached
+        if: steps.cache-gradle.outputs.cache-hit != 'true'
+        run: |
+          curl -L --retry 3 -o /tmp/gradle-7.6.6-bin.zip \
+            https://services.gradle.org/distributions/gradle-7.6.6-bin.zip
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Import GPG key
+        id: import-gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Build
+        run: ./gradlew clean build -Dgradle.wrapper.distribution.url=file:///tmp/gradle-7.6.6-bin.zip
+
+      - name: Publish to Maven Central
+        run: ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.GPG_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}

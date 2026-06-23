@@ -1,0 +1,5 @@
+rootProject.name = 'bonjour'
+include 'bonjour'
+include 'bonjour-java'
+include 'example-registry'
+include 'example-discovery'

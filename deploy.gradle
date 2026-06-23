@@ -1,0 +1,52 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                name = project.name
+                description = "openxiot module ${project.name}"
+                url = "https://github.com/openxiot/bonjour"
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name = "gkcity"
+                        email = "178915185@qq.com"
+                    }
+                }
+
+                scm {
+                    url = "https://github.com/openxiot/bonjour"
+                    connection = "scm:git:https://github.com/openxiot/bonjour.git"
+                }
+            }
+        }
+    }
+}
+
+signing {
+    if (project.hasProperty('signingInMemoryKey')) {
+        useInMemoryPgpKeys(
+                project.findProperty('signingKeyId'),
+                project.findProperty('signingInMemoryKey'),
+                project.findProperty('signingPassword')
+        )
+    }
+
+    sign publishing.publications.mavenJava
+}

@@ -1,0 +1,28 @@
+plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+}
+
+allprojects {
+    group = 'cc.openxiot'
+    version = '0.0.1'
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl = uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
+            snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
+            username = project.findProperty("sonatypeUsername") ?: ""
+            password = project.findProperty("sonatypePassword") ?: ""
+        }
+    }
+}

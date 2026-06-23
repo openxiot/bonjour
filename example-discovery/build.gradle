@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'application'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+mainClassName = 'cn.geekcity.xiot.bonjour.example.discovery.Example'
+
+dependencies {
+    implementation project(":bonjour-java")
+    implementation "org.slf4j:slf4j-simple:${Log4jSampleVersion}"
+}
+
+application {
+    mainClass = mainClassName
+}
+
+shadowJar {
+    archiveClassifier = 'fat'
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+    mergeServiceFiles()
+}
