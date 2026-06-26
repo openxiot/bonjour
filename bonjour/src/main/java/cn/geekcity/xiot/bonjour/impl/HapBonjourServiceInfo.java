@@ -14,12 +14,12 @@ public class HapBonjourServiceInfo implements BonjourServiceInfo {
     private String name;
     private String type;
     private String subtype;
+    private List<String> subtypes = new ArrayList<>();
     private String ip;
     private int port;
     private int priority;
     private int weight;
     private Map<String, String> properties = new HashMap<>();
-    private List<String> subtypes = new ArrayList<>();
 
     public HapBonjourServiceInfo(
             String name,
@@ -157,8 +157,8 @@ public class HapBonjourServiceInfo implements BonjourServiceInfo {
     }
 
     @Override
-    public BonjourServiceInfo subTypes(List<String> subtypes) {
-        this.subtypes = subtypes;
+    public HapBonjourServiceInfo subTypes(List<String> subtypes) {
+        this.subtypes = subtypes != null ? subtypes : new ArrayList<>();
         return this;
     }
 }

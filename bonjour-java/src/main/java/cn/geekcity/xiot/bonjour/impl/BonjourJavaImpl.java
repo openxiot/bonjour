@@ -207,41 +207,43 @@ public class BonjourJavaImpl implements Bonjour, ServiceListener {
 
     @Override
     public Future<Void> registerService(BonjourServiceInfo serviceInfo) {
-        ServiceInfo info;
-        List<String> subtypesList = serviceInfo.subtypes();
-        String singleSubtype = serviceInfo.subType();
+        List<String> subtypesList = serviceInfo.subTypes();
+        String subtype = (serviceInfo.subType() == null || serviceInfo.subType().isEmpty()) ? null : serviceInfo.subType();
 
+        // Primary service (no subtype) for the base browse, e.g. _matterc._udp.local.
+        ServiceInfo info = ServiceInfo.create(serviceInfo.type() + "local.",
+                serviceInfo.name(),
+                serviceInfo.port(),
+                serviceInfo.weight(),
+                serviceInfo.priority(),
+                serviceInfo.properties());
+
+        // Build the list of subtype ServiceInfos so JmDNS publishes the
+        // _<subtype>._sub._<type> PTR records used for selective browsing.
+        List<ServiceInfo> subtypeInfos = new ArrayList<>();
         if (subtypesList != null && !subtypesList.isEmpty()) {
-            // JmDNS with multiple subtypes: ServiceInfo.create(type, name, port, weight, priority, props, subtype1, subtype2...)
-            info = ServiceInfo.create(serviceInfo.type() + "local.",
+            for (String st : subtypesList) {
+                subtypeInfos.add(ServiceInfo.create(serviceInfo.type() + "local.",
+                        serviceInfo.name(),
+                        st,
+                        serviceInfo.port(),
+                        serviceInfo.weight(),
+                        serviceInfo.priority(),
+                        serviceInfo.properties()));
+            }
+        } else if (subtype != null) {
+            subtypeInfos.add(ServiceInfo.create(serviceInfo.type() + "local.",
                     serviceInfo.name(),
+                    subtype,
                     serviceInfo.port(),
                     serviceInfo.weight(),
                     serviceInfo.priority(),
-                    serviceInfo.properties(),
-                    subtypesList.toArray(new String[0]));
-        } else if (singleSubtype != null && !singleSubtype.isEmpty()) {
-            // Legacy single subtype support
-            info = ServiceInfo.create(serviceInfo.type() + "local.",
-                    serviceInfo.name(),
-                    singleSubtype,
-                    serviceInfo.port(),
-                    serviceInfo.weight(),
-                    serviceInfo.priority(),
-                    serviceInfo.properties());
-        } else {
-            // No subtypes
-            info = ServiceInfo.create(serviceInfo.type() + "local.",
-                    serviceInfo.name(),
-                    serviceInfo.port(),
-                    serviceInfo.weight(),
-                    serviceInfo.priority(),
-                    serviceInfo.properties());
+                    serviceInfo.properties()));
         }
 
         logger.info("registerService: " + info.getType()
                 + (subtypesList != null && !subtypesList.isEmpty() ? " subtypes=" + subtypesList : "")
-                + (singleSubtype != null && !singleSubtype.isEmpty() ? " subtype=" + singleSubtype : ""));
+                + (subtype != null ? " subtype=" + subtype : ""));
 
         if (jmdnsInstances.isEmpty()) {
             return Future.failedFuture("jmdns not started");
@@ -253,23 +255,32 @@ public class BonjourJavaImpl implements Bonjour, ServiceListener {
                 continue;
             }
 
-            if (list.containsKey(info.getType())) {
-                logger.info(String.format("%s already registered", info.getType()));
-                continue;
-            }
+            // Register primary service
+            registerOne(instance, list, info);
 
-            ServiceInfo newInfo = info.clone();
-
-            list.put(info.getType(), newInfo);
-
-            try {
-                instance.registerService(newInfo);
-            } catch (IOException e) {
-                logger.error(e);
+            // Register subtype services
+            for (ServiceInfo subInfo : subtypeInfos) {
+                registerOne(instance, list, subInfo);
             }
         }
 
         return Future.succeededFuture();
+    }
+
+    private void registerOne(JmDNS instance, Map<String, ServiceInfo> list, ServiceInfo info) {
+        if (list.containsKey(info.getType())) {
+            logger.info(String.format("%s already registered", info.getType()));
+            return;
+        }
+
+        ServiceInfo newInfo = info.clone();
+        list.put(info.getType(), newInfo);
+
+        try {
+            instance.registerService(newInfo);
+        } catch (IOException e) {
+            logger.error(e);
+        }
     }
 
     @Override

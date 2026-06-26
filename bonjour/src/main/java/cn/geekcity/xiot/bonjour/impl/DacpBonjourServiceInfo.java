@@ -14,12 +14,12 @@ public class DacpBonjourServiceInfo implements BonjourServiceInfo {
     private String name;
     private String type;
     private String subtype;
+    private List<String> subtypes = new ArrayList<>();
     private String ip;
     private int port;
     private int priority;
     private int weight;
     private Map<String, String> properties = new HashMap<>();
-    private List<String> subtypes = new ArrayList<>();
 
     public DacpBonjourServiceInfo(String name, int port) {
         this.type = SERVICE_TYPE;
@@ -138,7 +138,7 @@ public class DacpBonjourServiceInfo implements BonjourServiceInfo {
     }
 
     @Override
-    public BonjourServiceInfo subTypes(List<String> subtypes) {
+    public DacpBonjourServiceInfo subTypes(List<String> subtypes) {
         this.subtypes = subtypes != null ? subtypes : new ArrayList<>();
         return this;
     }
