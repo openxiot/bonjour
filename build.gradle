@@ -4,7 +4,7 @@ plugins {
 
 allprojects {
     group = 'cc.openxiot'
-    version = '0.0.3'
+    version = '0.0.4'
     repositories {
         mavenLocal()
         mavenCentral()
@@ -14,6 +14,12 @@ allprojects {
 subprojects {
     apply plugin: 'java-library'
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+    // Ensure JDK 8 compatibility
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 nexusPublishing {
