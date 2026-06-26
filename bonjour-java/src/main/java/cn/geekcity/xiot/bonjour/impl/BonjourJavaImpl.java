@@ -268,13 +268,16 @@ public class BonjourJavaImpl implements Bonjour, ServiceListener {
     }
 
     private void registerOne(JmDNS instance, Map<String, ServiceInfo> list, ServiceInfo info) {
-        if (list.containsKey(info.getType())) {
-            logger.info(String.format("%s already registered", info.getType()));
+        // Use getTypeWithSubtype() as the unique key, so subtype PTR records
+        // are registered separately from the base service.
+        String key = info.getTypeWithSubtype();
+        if (list.containsKey(key)) {
+            logger.info(String.format("%s already registered", key));
             return;
         }
 
         ServiceInfo newInfo = info.clone();
-        list.put(info.getType(), newInfo);
+        list.put(key, newInfo);
 
         try {
             instance.registerService(newInfo);
