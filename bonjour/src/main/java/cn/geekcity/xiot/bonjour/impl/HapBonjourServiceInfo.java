@@ -11,6 +11,7 @@ public class HapBonjourServiceInfo implements BonjourServiceInfo {
     public static final String SERVICE_TYPE = "_hap._tcp.";
     private String name;
     private String type;
+    private String subtype;
     private String ip;
     private int port;
     private int priority;
@@ -133,6 +134,17 @@ public class HapBonjourServiceInfo implements BonjourServiceInfo {
 
     public HapBonjourServiceInfo setDiscoverable(boolean discoverable) {
         properties.put("sf", discoverable ? "1" : "0");
+        return this;
+    }
+
+    @Override
+    public String subType() {
+        return subtype;
+    }
+
+    @Override
+    public HapBonjourServiceInfo subType(String subtype) {
+        this.subtype = subtype;
         return this;
     }
 }

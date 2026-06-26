@@ -10,6 +10,7 @@ public class BonjourServiceInfoImpl implements BonjourServiceInfo {
 
     private String name;
     private String type;
+    private String subtype;
     private String ip;
     private int port;
     private int priority;
@@ -102,6 +103,17 @@ public class BonjourServiceInfoImpl implements BonjourServiceInfo {
     @Override
     public BonjourServiceInfoImpl property(String key, byte[] value) {
         this.property(key, new String(value, StandardCharsets.UTF_8));
+        return this;
+    }
+
+    @Override
+    public String subType() {
+        return subtype;
+    }
+
+    @Override
+    public BonjourServiceInfoImpl subType(String subtype) {
+        this.subtype = subtype;
         return this;
     }
 }

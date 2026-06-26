@@ -207,8 +207,11 @@ public class BonjourJavaImpl implements Bonjour, ServiceListener {
 
     @Override
     public Future<Void> registerService(BonjourServiceInfo serviceInfo) {
+        String subtype = (serviceInfo.subType() == null || serviceInfo.subType().isEmpty()) ? null : serviceInfo.subType();
+
         ServiceInfo info = ServiceInfo.create(serviceInfo.type() + "local.",
                 serviceInfo.name(),
+                subtype,
                 serviceInfo.port(),
                 serviceInfo.weight(),
                 serviceInfo.priority(),
@@ -374,6 +377,12 @@ public class BonjourJavaImpl implements Bonjour, ServiceListener {
         s.ip(ip);
         s.port(port);
         s.properties(properties);
+
+        // Preserve subtype if present
+        String resolvedSubtype = event.getInfo().getSubtype();
+        if (resolvedSubtype != null && !resolvedSubtype.isEmpty()) {
+            s.subType(resolvedSubtype);
+        }
 
         Map<String, BonjourServiceInfo> map = servicesFound.computeIfAbsent(type, k -> new HashMap<>());
         if (map.containsKey(s.name())) {
