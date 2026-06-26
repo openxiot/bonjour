@@ -67,7 +67,7 @@ public interface BonjourServiceInfo {
      *
      * @return the list of subtype strings, or empty list if none set
      */
-    List<String> subtypes();
+    List<String> subTypes();
 
     /**
      * Sets the list of service subtypes.
@@ -75,5 +75,5 @@ public interface BonjourServiceInfo {
      * @param subtypes the list of subtype strings
      * @return this BonjourServiceInfo instance for method chaining
      */
-    BonjourServiceInfo subtypes(List<String> subtypes);
+    BonjourServiceInfo subTypes(List<String> subtypes);
 }

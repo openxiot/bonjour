@@ -3,7 +3,9 @@ package cn.geekcity.xiot.bonjour.impl;
 import cn.geekcity.xiot.bonjour.BonjourServiceInfo;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BonjourServiceInfoImpl implements BonjourServiceInfo {
@@ -11,6 +13,7 @@ public class BonjourServiceInfoImpl implements BonjourServiceInfo {
     private String name;
     private String type;
     private String subtype;
+    private List<String> subtypes = new ArrayList<>();
     private String ip;
     private int port;
     private int priority;
@@ -114,6 +117,17 @@ public class BonjourServiceInfoImpl implements BonjourServiceInfo {
     @Override
     public BonjourServiceInfoImpl subType(String subtype) {
         this.subtype = subtype;
+        return this;
+    }
+
+    @Override
+    public List<String> subTypes() {
+        return subtypes;
+    }
+
+    @Override
+    public BonjourServiceInfoImpl subTypes(List<String> subtypes) {
+        this.subtypes = subtypes != null ? subtypes : new ArrayList<>();
         return this;
     }
 }

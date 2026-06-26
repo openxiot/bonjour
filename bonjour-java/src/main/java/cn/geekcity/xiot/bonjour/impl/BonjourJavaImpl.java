@@ -207,17 +207,41 @@ public class BonjourJavaImpl implements Bonjour, ServiceListener {
 
     @Override
     public Future<Void> registerService(BonjourServiceInfo serviceInfo) {
-        String subtype = (serviceInfo.subType() == null || serviceInfo.subType().isEmpty()) ? null : serviceInfo.subType();
+        ServiceInfo info;
+        List<String> subtypesList = serviceInfo.subtypes();
+        String singleSubtype = serviceInfo.subType();
 
-        ServiceInfo info = ServiceInfo.create(serviceInfo.type() + "local.",
-                serviceInfo.name(),
-                subtype,
-                serviceInfo.port(),
-                serviceInfo.weight(),
-                serviceInfo.priority(),
-                serviceInfo.properties());
+        if (subtypesList != null && !subtypesList.isEmpty()) {
+            // JmDNS with multiple subtypes: ServiceInfo.create(type, name, port, weight, priority, props, subtype1, subtype2...)
+            info = ServiceInfo.create(serviceInfo.type() + "local.",
+                    serviceInfo.name(),
+                    serviceInfo.port(),
+                    serviceInfo.weight(),
+                    serviceInfo.priority(),
+                    serviceInfo.properties(),
+                    subtypesList.toArray(new String[0]));
+        } else if (singleSubtype != null && !singleSubtype.isEmpty()) {
+            // Legacy single subtype support
+            info = ServiceInfo.create(serviceInfo.type() + "local.",
+                    serviceInfo.name(),
+                    singleSubtype,
+                    serviceInfo.port(),
+                    serviceInfo.weight(),
+                    serviceInfo.priority(),
+                    serviceInfo.properties());
+        } else {
+            // No subtypes
+            info = ServiceInfo.create(serviceInfo.type() + "local.",
+                    serviceInfo.name(),
+                    serviceInfo.port(),
+                    serviceInfo.weight(),
+                    serviceInfo.priority(),
+                    serviceInfo.properties());
+        }
 
-        logger.info("registerService: " + info.getType());
+        logger.info("registerService: " + info.getType()
+                + (subtypesList != null && !subtypesList.isEmpty() ? " subtypes=" + subtypesList : "")
+                + (singleSubtype != null && !singleSubtype.isEmpty() ? " subtype=" + singleSubtype : ""));
 
         if (jmdnsInstances.isEmpty()) {
             return Future.failedFuture("jmdns not started");

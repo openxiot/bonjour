@@ -3,7 +3,9 @@ package cn.geekcity.xiot.bonjour.impl;
 import cn.geekcity.xiot.bonjour.BonjourServiceInfo;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HapBonjourServiceInfo implements BonjourServiceInfo {
@@ -17,6 +19,7 @@ public class HapBonjourServiceInfo implements BonjourServiceInfo {
     private int priority;
     private int weight;
     private Map<String, String> properties = new HashMap<>();
+    private List<String> subtypes = new ArrayList<>();
 
     public HapBonjourServiceInfo(
             String name,
@@ -145,6 +148,17 @@ public class HapBonjourServiceInfo implements BonjourServiceInfo {
     @Override
     public HapBonjourServiceInfo subType(String subtype) {
         this.subtype = subtype;
+        return this;
+    }
+
+    @Override
+    public List<String> subTypes() {
+        return subtypes;
+    }
+
+    @Override
+    public BonjourServiceInfo subTypes(List<String> subtypes) {
+        this.subtypes = subtypes;
         return this;
     }
 }
